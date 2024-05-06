@@ -70,7 +70,7 @@ to use slice-by-16. In fact, the slice-by-8 algorithm almost has the same struct
 
 <p>Is there any room for improvement? Well, Stephan Brumme <a href="https://create.stephan-brumme.com/crc32/">mentioned</a> that GCC produces faster code for slice-by-16 compared to MSVC. I was hoping that this would no longer be the case, however one unfortunate test later and it turns out that this is still true. The speed improvement is significant, resulting in code that's more than 50% faster, or more than 1000 MB/s faster. Alas, I have to deal with the burden of changing the build system to force it to use GCC.</p>
 
-<p>After implementing the slice-by-16 algorithm and compiling with GCC, the speed would become larger than 3 GB/s on a modern system, which is about as fast as C implementations.</p>
+<p>After implementing the slice-by-16 algorithm and compiling with GCC, the speed ends upp becoming larger than 3 GB/s on modern systems, which is about as fast as C implementations.</p>
 
 <p>Can we go further than this? Well, crcany offers something unique that's hardly seen in other CRC libraries, and that's the ability to combine multiple CRCs. <a href="https://stackoverflow.com/a/44061990">This operation has can be done in O(log(N))</a>. We can take advantage of this to parallelize the computation of the CRC by splitting the message into multiple chunks, computing the CRC for each chunk independently in parallel, and combining the results. This approach offers impressive results, reaching speeds that are comparable to the speed of CPU instructions in cases where the message is long, although it's more computationally expensive.</p>
 
