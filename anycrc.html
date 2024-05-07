@@ -16,7 +16,7 @@
 <h1 class="center">Anycrc - Very Fast CRC Library for Python</h1>
 
 <p><b>Date Published:</b> 05-05-2024</p>
-<p><b>Date Modified:</b> 07-05-2024</p>
+<p><b>Last Modified:</b> 07-05-2024</p>
 
 <p>I wrote this library while trying to brute force/reverse engineer a short message from its CRC hash (I later learned that this is a futile effort). However, I found that there is still a need for a fast CRC library in Python, so I decided to make this library anyway.</p>
 
@@ -24,17 +24,19 @@
 
 <h2>Considering and comparing existing CRC libraries for Python</h2>
 
-<h3>Python libraries:</h3>
+<h3>Python libraries</h3>
 
 <p>There is <a href="https://github.com/Nicoretti/crc">crc</a> which happens to be popular but is extremely slow. It commits several programming sins, such as using an entire class to represent a single byte.</p>
 
 <p>A nicer pure Python library is <a href="https://github.com/GardenTools/CrcEngine">CrcEngine</a>. However, CRC code would ideally not be written in Python, as even optimized Python would still be pretty slow.</p>
 
-<h3>Bindings to other languages:</h3>
+<h3>Bindings to other languages</h3>
+
+<p>Moving into libraries that utilize bindings to other languages. This is where we expect to find better performance.</p>
 
 <p>The standard library has the <a href="https://docs.python.org/3/library/binascii.html">binascii</a> and <a href="https://docs.python.org/3/library/zlib.html">zlib</a> modules, which both have an implementation of CRC32. On 64-bit systems, it uses the slice-by-8 algorithm which is very fast, so if all that you need is the basic CRC32, then the Python standard library should be enough. The binascii module also has an implementation of CRC-CCITT.</p>
 
-<p>Moving into libraries that utilize bindings to other languages. This is where we expect to find better performance compared to pure Python. There is a modernized version of the old crcmod library named <a href="https://github.com/ntamas/crcmod-plus">crcmod-plus</a>. It uses the byte-by-byte algorithm, and it achieves good performance compared to Python-based libraries.</p>
+<p>There is a modernized version of the old crcmod library named <a href="https://github.com/ntamas/crcmod-plus">crcmod-plus</a>. It uses the byte-by-byte algorithm, and it achieves good performance compared to Python-based libraries.</p>
 
 <p>There is also <a href="https://github.com/overcat/fastcrc">fastcrc</a>, which binds to the crc-rs rust library. It offers similar performance to crcmod-plus, albeit its selection of CRCs is more limited. It seems to be still using the byte-by-byte algorithm, despite the fact that crc-rs was updated to support the slice-by-16 algorithm, so it has the potential to be faster.</p>
 
@@ -44,9 +46,9 @@
 
 <h2>Can we do better?</h2>
 
-<p>The answer is yes. Since there is already fast, optimized CRC code floating around. I want to find a library to write bindings for.</p>
+<p>The answer is yes. Since there is already fast, optimized CRC code floating around, It would be better to write bindings to an existing library, rather than to try to write CRC code from scratch. There are two things that I want to have in a CRC library:</p>
 
-<p>First, I want to be able to compute any kind of CRC no matter what the parameters of the CRC are. For this reason, I would exclude any library that's designed to compute a specific type of CRC. I would also exclude any library that's designed to generate CRC code, even if it supports multiple types of CRC. As I only want to compile my program once.</p>
+<p>First, I want to be able to compute any kind of CRC no matter what the parameters of the CRC are. For this reason, I would exclude any library that's designed to compute a specific type of CRC. I would also exclude any library that's designed to generate CRC code, even if it supports multiple types of CRC, as I only want to compile my program once.</p>
 
 <p>Second, I want a library that offers the best and latest CRC algorithm. The fastest libraries are the ones that utilize CPU instructions that are specifically intended for CRC calculation. However, these instructions are only meant to be used for calculating a specific kind of CRC. That is CRC32C, or CRC32-Castagnoli.</p>
 
@@ -71,139 +73,7 @@ href="https://cibuildwheel.pypa.io/en/stable/">cibuildwheel</a> in conjunction w
 <p>As mentioned above, the fastest algorithm that crcany offers is the slice-by-8 algorithm, but it turns out that it's relatively easy to extend it
 to use slice-by-16. In fact, the slice-by-8 algorithm almost has the same structure as slice-by-16.</p>
 
-<p>The slice-by-16 takes advantage of most of the CPU's L1 cache. It's possible in theory to write a slice-by-32 algorithm, however, the CRC table (which gets larger on every later version of the algorithm) will need to be able to fit in your system's L1 cache. Otherwise, you will not notice a significant speed up. </p>
-
-<p>Is there any room for improvement? Well, Stephan Brumme <a href="https://create.stephan-brumme.com/crc32/">mentioned</a> that GCC produces faster code for slice-by-16 compared to MSVC. I was hoping that this would no longer be the case, however one unfortunate test later and it turns out that this is still true. The speed improvement is significant, resulting in code that's more than 50% faster, or more than 1000 MB/s faster. Alas, I have to deal with the burden of changing the build system to force it to use GCC.</p>
-
-<p>After implementing the slice-by-16 algorithm and compiling with GCC, the speed ends up becoming larger than 3 GB/s on modern systems, which is about as fast as the C implementations of the algorithm.</p>
-
-<p>Can we go further than this? Well, crcany offers something unique that's hardly seen in other CRC libraries, and that's the ability to combine multiple CRCs. <a href="https://stackoverflow.com/a/44061990">This operation has can be done in O(log(N))</a>. We can take advantage of this to parallelize the computation of the CRC by splitting the message into multiple chunks, computing the CRC for each chunk independently in parallel, and combining the results. This approach offers impressive results, reaching speeds that are comparable to the speed of CPU instructions in cases where the message is long, although it's more computationally expensive.</p>
-
-<table align=center>
-    <thead>
-        <tr>
-            <td>Module</td>
-            <td>Time Elapsed (s)</td>
-            <td>Speed (GiB/s)</td>
-            <td>Relative</td>
-        </tr>
-    </thead>
-    
-    <tbody>
-        <tr>
-            <td>anycrc (parallel)</td>
-            <td>0.02</td>
-            <td>24.51</td>
-            <td>1.00</td>
-        </tr>
-        <tr>
-            <td>anycrc (serial)</td>
-            <td>0.13</td>
-            <td>3.21</td>
-            <td>7.64</td>
-        </tr>
-        <tr>
-            <td>zlib</td>
-            <td>0.22</td>
-            <td>1.93</td>
-            <td>12.72</td>
-        </tr>
-        <tr>
-            <td>fastcrc</td>
-            <td>0.67</td>
-            <td>0.62</td>
-            <td>39.75</td>
-        </tr>
-        <tr>
-            <td>crcmod-plus</td>
-            <td>0.67</td>
-            <td>0.62</td>
-            <td>39.73</td>
-        </tr>
-    </tbody>
-</table>
-
-<p class="center">Table: Comparison of the speed of different Python CRC libraries</p>
-
-<p>That's it for the journey of writing this library. <a href="https://github.com/marzooqy/anycrc">Here is a link to the anycrc library</a>.</p>
-
-</body>
-
-</html>
- <!DOCTYPE html>
-<html lang="en">
-
-<head>
-<title>Anycrc - Very Fast CRC Library for Python</title>
-<link rel="stylesheet" href="style.css">
-<meta name="description" content="Very Fast CRC Library for Python">
-<meta name="keywords" content="Fast, CRC, Library, Python">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-
-<body>
-
-<a href="index.html">Back to Homepage</a>
-
-<h1 class="center">Anycrc - Very Fast CRC Library for Python</h1>
-
-<p><b>Date Published:</b> 05-05-2024</p>
-<p><b>Date Modified:</b> 07-05-2024</p>
-
-<p>I wrote this library while trying to brute force/reverse engineer a short message from its CRC hash (I later learned that this is a futile effort). However, I found that there is still a need for a fast CRC library in Python, so I decided to make this library anyway.</p>
-
-<p>So far, the library has zero stars on GitHub, and it gets zero visitors per day, so I thought I could write a blog about it.</p>
-
-<h2>Considering and comparing existing CRC libraries for Python</h2>
-
-<h3>Python libraries:</h3>
-
-<p>There is <a href="https://github.com/Nicoretti/crc">crc</a> which happens to be popular but is extremely slow. It commits several programming sins, such as using an entire class to represent a single byte.</p>
-
-<p>A nicer pure Python library is <a href="https://github.com/GardenTools/CrcEngine">CrcEngine</a>. However, CRC code would ideally not be written in Python, as even optimized Python would still be pretty slow.</p>
-
-<h3>Bindings to other languages:</h3>
-
-<p>The standard library has the <a href="https://docs.python.org/3/library/binascii.html">binascii</a> and <a href="https://docs.python.org/3/library/zlib.html">zlib</a> modules, which both have an implementation of CRC32. On 64-bit systems, it uses the slice-by-8 algorithm which is very fast, so if all that you need is the basic CRC32, then the Python standard library should be enough. The binascii module also has an implementation of CRC-CCITT.</p>
-
-<p>Moving into libraries that utilize bindings to other languages. This is where we expect to find better performance compared to pure Python. There is a modernized version of the old crcmod library named <a href="https://github.com/ntamas/crcmod-plus">crcmod-plus</a>. It uses the byte-by-byte algorithm, and it achieves good performance compared to Python-based libraries.</p>
-
-<p>There is also <a href="https://github.com/overcat/fastcrc">fastcrc</a>, which binds to the crc-rs rust library. It offers similar performance to crcmod-plus, albeit its selection of CRCs is more limited. It seems to be still using the byte-by-byte algorithm, despite the fact that crc-rs was updated to support the slice-by-16 algorithm, so it has the potential to be faster.</p>
-
-<p>There is <a href="https://github.com/hex-in/libscrc">libscrc</a>, which I expected to have similar performance to crcmod-plus and fastcrc, however based on my testing it runs slower than both of them.</p>
-
-<p>There is also <a href="https://github.com/tpircher/pycrc">pycrc</a>, which despite its name it's actually intended for generating C code, and its Python implementation is very slow.</p>
-
-<h2>Can we do better?</h2>
-
-<p>The answer is yes. Since there is already fast, optimized CRC code floating around, It would be better to find a library to write bindings to an existing library, rather than o try to write CRC code from scratch.</p>
-
-<p>First, I want to be able to compute any kind of CRC no matter what the parameters of the CRC are. For this reason, I would exclude any library that's designed to compute a specific type of CRC. I would also exclude any library that's designed to generate CRC code, even if it supports multiple types of CRC. As I only want to compile my program once.</p>
-
-<p>Second, I want a library that offers the best and latest CRC algorithm. The fastest libraries are the ones that utilize CPU instructions that are specifically intended for CRC calculation. However, these instructions are only meant to be used for calculating a specific kind of CRC. That is CRC32C, or CRC32-Castagnoli.</p>
-
-<p>For this reason, we'll be looking for the next fastest algorithm. This is the slice-by-16 algorithm. If you are wondering how different CRC algorithms compare, you can check out this <a href="https://create.stephan-brumme.com/crc32/">good guide by Stephan Brumme</a>.</p>
-
-<p>Now it's still a struggle to find a library that satisfies both criteria listed above. In fact, I almost gave up on this project. However, I eventually stumbled upon the <a href="https://github.com/madler/crcany">crcany library by Mark Adler</a>. It's difficult to find on GitHub due to the fact that it's listed as an HTML project, so it doesn't show up when you filter for C projects.</p>
-
-<p>crcany offers generic algorithms for computing CRCs of any size up to a width of 64 bits. The fastest being the slice-by-8 algorithm (only on x64
-systems), and above 64 bits it resorts to using the much slower bit-by-bit algorithm. For the purposes of my project, let's just pretend that CRCs above 64 bits don't exist.</p>
-
-<h2>It's time to write the bindings to the library in Python</h2>
-
-<p>For this I will be using Cython, which compiles to a native Python C extension. This is much easier than dealing with the (ugly) Python C API, and if optimized well, Cython is just slightly slower than native Python C extensions.</p>
-
-<p>CRC calculation is one situation where C bindings are ideal. It does a lot of computation on the C side, and it only needs to return a single integer. There is not much data that needs to be shifted back and forth between Python and C, and so we can expect to achieve a significant speed up with properly done Cython bindings.</p>
-
-<p>After writing the bindings, the next challenge is to cross-compile the Cython extension. Turns out the common way to do this is to use <a
-href="https://cibuildwheel.pypa.io/en/stable/">cibuildwheel</a> in conjunction with a CI environment (Continuous Integration). In this case the CI environment I'll be using is GitHub Actions. This is my first time compiling a library for multiple systems.</p>
-
-<h2>Optimizing the performance</h2>
-
-<p>As mentioned above, the fastest algorithm that crcany offers is the slice-by-8 algorithm, but it turns out that it's relatively easy to extend it
-to use slice-by-16. In fact, the slice-by-8 algorithm almost has the same structure as slice-by-16.</p>
-
-<p>The slice-by-16 takes advantage of most of the CPU's L1 cache. It's possible in theory to write a slice-by-32 algorithm, however, the CRC table (which gets larger on every later version of the algorithm) will need to be able to fit in your system's L1 cache. Otherwise, you will not notice a significant speed up. </p>
+<p>The slice-by-16 takes advantage of most of the CPU's L1 cache. It's possible in theory to write a slice-by-32 algorithm, however, the CRC table (which gets larger on every later version of the algorithm) will need to be able to fit in the system's L1 cache. Otherwise, you will not notice a significant speed up. </p>
 
 <p>Is there any room for improvement? Well, Stephan Brumme <a href="https://create.stephan-brumme.com/crc32/">mentioned</a> that GCC produces faster code for slice-by-16 compared to MSVC. I was hoping that this would no longer be the case, however one unfortunate test later and it turns out that this is still true. The speed improvement is significant, resulting in code that's more than 50% faster, or more than 1000 MB/s faster. Alas, I have to deal with the burden of changing the build system to force it to use GCC.</p>
 
