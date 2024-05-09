@@ -1,19 +1,33 @@
 .container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Arial;
 }
 
 .view {
     width: 95%;
 }
 
-@media only screen and (orientation: landscape) {
-    .view {
-        width: 80%;
-    }
-}
-
 .center {
     text-align: center;
+}
+
+thead {
+    text-align: center;
+}
+
+td:nth-child(n + 2) {
+    text-align: center;
+}
+
+td {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+@media only screen and (orientation: landscape) {
+    .view {
+        width: 75%;
+    }
 }
