@@ -1,3 +1,13 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.view {
+    width: 80%;
+}
+
 .center {
     text-align: center;
 }
