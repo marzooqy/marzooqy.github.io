@@ -11,3 +11,7 @@ window.onresize = function(event) {
         document.getElementsByClassName('view')[0].setAttribute("style","width: 80%");
     }
 }
+
+window.onload = function(event) {
+    document.getElementsByClassName("container")[0].style.visibility = "visible";
+}
