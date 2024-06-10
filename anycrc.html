@@ -42,9 +42,7 @@
 
         <p>First, I want to be able to compute any kind of CRC no matter what the parameters of the CRC are. For this reason, I would exclude any library that's designed to compute a specific type of CRC. I would also exclude any library that's designed to generate CRC code, even if it supports multiple types of CRC, as I only want to compile my program once.</p>
 
-        <p>Second, I want a library that offers the best and latest CRC algorithm. The fastest libraries are the ones that utilize CPU instructions that are specifically intended for CRC calculation. However, these instructions are only meant to be used for calculating a specific kind of CRC. That is CRC32C, or CRC32-Castagnoli.</p>
-
-        <p>For this reason, we'll be looking for the next fastest algorithm. This is the slice-by-16 algorithm. If you are wondering how different CRC algorithms compare, you can check out this <a href="https://create.stephan-brumme.com/crc32/">good guide by Stephan Brumme</a>.</p>
+        <p>Second, I want a library that offers the best and latest CRC algorithm. If we exclude algorithms that utilize special CPU instructions, then the fastest algorithm is the slice-by-16 algorithm. If you are wondering how different CRC algorithms compare, you can check out this <a href="https://create.stephan-brumme.com/crc32/">good guide by Stephan Brumme</a>.</p>
 
         <p>Now it's still a struggle to find a library that satisfies both criteria listed above. In fact, I almost gave up on this project. However, I eventually stumbled upon the <a href="https://github.com/madler/crcany">crcany library by Mark Adler</a>. It's difficult to find on GitHub due to the fact that it's listed as an HTML project, so it doesn't show up when you filter for C projects.</p>
 
