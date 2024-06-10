@@ -22,8 +22,6 @@
 
         <p>I wrote this library while trying to brute force/reverse engineer a short message from its CRC hash (I later learned that this is a futile effort). However, I found that there is still a need for a fast CRC library in Python, so I decided to make this library anyway.</p>
 
-        <p>So far, the library has zero stars on GitHub, and it gets zero visitors per day, so I thought I could write a blog about it.</p>
-
         <h2>Considering and comparing existing CRC libraries for Python</h2>
 
         <p>For pure Python libraries, there is <a href="https://github.com/Nicoretti/crc">crc</a> which happens to be popular but is extremely slow. It commits several programming sins, such as using an entire class to represent a single byte. A nicer pure Python library is <a href="https://github.com/GardenTools/CrcEngine">CrcEngine</a>. However, CRC code would ideally not be written in Python, as even optimized Python would still be pretty slow.</p>
