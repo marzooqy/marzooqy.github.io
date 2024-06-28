@@ -64,7 +64,7 @@
 
         <p>Is there any room for improvement? Well, Stephan Brumme <a href="https://create.stephan-brumme.com/crc32/">mentioned</a> that GCC produces faster code for slice-by-16 compared to MSVC. I was hoping that this would no longer be the case, however one unfortunate test later and it turns out that this is still true. The speed improvement is significant, resulting in code that's more than 50% faster, or more than 1000 MB/s faster. Alas, I have to deal with the burden of changing the build system to force it to use GCC.</p>
 
-        <p>After implementing the slice-by-16 algorithm and compiling with GCC, the speed ends up becoming larger than 3 GB/s on modern systems, which is about as fast as the C implementations of the algorithm</p>
+        <p>After implementing the slice-by-16 algorithm and compiling with GCC, the speed ends up becoming larger than 3 GB/s on modern systems, which is about as fast as the C implementations of the algorithm.</p>
         
         <table align=center>
             <thead>
@@ -78,34 +78,28 @@
             
             <tbody>
                 <tr>
-                    <td>anycrc (parallel)</td>
-                    <td>0.02</td>
-                    <td>24.51</td>
-                    <td>1.00</td>
-                </tr>
-                <tr>
-                    <td>anycrc (serial)</td>
+                    <td>anycrc</td>
                     <td>0.13</td>
                     <td>3.21</td>
-                    <td>7.64</td>
+                    <td>1.00</td>
                 </tr>
                 <tr>
                     <td>zlib</td>
                     <td>0.22</td>
                     <td>1.93</td>
-                    <td>12.72</td>
+                    <td>1.66</td>
                 </tr>
                 <tr>
                     <td>fastcrc</td>
                     <td>0.67</td>
                     <td>0.62</td>
-                    <td>39.75</td>
+                    <td>5.18</td>
                 </tr>
                 <tr>
                     <td>crcmod-plus</td>
                     <td>0.67</td>
                     <td>0.62</td>
-                    <td>39.73</td>
+                    <td>5.18</td>
                 </tr>
             </tbody>
         </table>
