@@ -61,10 +61,6 @@
         to use slice-by-16. In fact, the slice-by-8 algorithm almost has the same structure as slice-by-16.</p>
 
         <p>The slice-by-16 takes advantage of most of the CPU's L1 cache. It's possible in theory to write a slice-by-32 algorithm, however, the CRC table (which gets larger on every later version of the algorithm) will need to be able to fit in the system's L1 cache. Otherwise, you will not notice a significant speed up. </p>
-
-        <p>Is there any room for improvement? Well, Stephan Brumme <a href="https://create.stephan-brumme.com/crc32/">mentioned</a> that GCC produces faster code for slice-by-16 compared to MSVC. I was hoping that this would no longer be the case, however one unfortunate test later and it turns out that this is still true. The speed improvement is significant, resulting in code that's more than 50% faster, or more than 1000 MB/s faster. Alas, I have to deal with the burden of changing the build system to force it to use GCC.</p>
-
-        <p>After implementing the slice-by-16 algorithm and compiling with GCC, the speed ends up becoming larger than 3 GB/s on modern systems, which is about as fast as the C implementations of the algorithm.</p>
         
         <table align=center>
             <thead>
