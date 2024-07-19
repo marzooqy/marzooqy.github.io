@@ -24,7 +24,7 @@
 
         <h2>Considering and comparing existing CRC libraries for Python</h2>
 
-        <p>For pure Python libraries, there is <a href="https://github.com/Nicoretti/crc">crc</a> which happens to be popular but is extremely slow. It commits several programming sins, such as using an entire class to represent a single byte. A nicer pure Python library is <a href="https://github.com/GardenTools/CrcEngine">CrcEngine</a>. However, CRC code would ideally not be written in Python, as even optimized Python would still be pretty slow.</p>
+        <p>For pure Python libraries, there is <a href="https://github.com/Nicoretti/crc">crc</a> which happens to be popular but is extremely slow. It commits several programming sins, such as using an entire class to represent a single byte. A nicer pure Python library is <a href="https://github.com/GardenTools/CrcEngine">CrcEngine</a>. However, CRC code would ideally not be written in Python, as even optimized Python code would still be pretty slow.</p>
 
         <p>The standard library has the <a href="https://docs.python.org/3/library/binascii.html">binascii</a> and <a href="https://docs.python.org/3/library/zlib.html">zlib</a> modules, which both have an implementation of CRC32. On 64-bit systems, they use the slice-by-8 algorithm which is very fast, so if all that you need is the basic CRC32, then the Python standard library should be enough. The binascii module also has an implementation of CRC-CCITT.</p>
 
