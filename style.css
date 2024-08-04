@@ -1,8 +1,21 @@
+body {
+    margin: 0;
+}
+
 .container {
     display: flex;
     align-items: center;
     justify-content: center;
     font-family: Arial;
+    line-height: 2em;
+}
+
+h3 {
+    font-size: 20px;
+}
+
+p {
+    font-size: 17.5px;
 }
 
 .view {
@@ -11,6 +24,11 @@
 
 .center {
     text-align: center;
+}
+
+table, thead, td {
+    border: 1px solid black;
+    border-collapse: collapse;
 }
 
 thead {
@@ -28,7 +46,7 @@ td:nth-child(n + 2) {
 
 @media only screen and (orientation: landscape) {
     .view {
-        width: 75%;
+        width: 60%;
     }
     
     td {

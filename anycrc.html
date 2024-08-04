@@ -15,26 +15,26 @@
     <div class="view">
         <a href="index.html">Back to Homepage</a>
 
-        <h1 class="center">Anycrc - Very Fast CRC Library for Python</h1>
+        <h2 class="center">Anycrc - Very Fast CRC Library for Python</h2>
 
         <p><b>Date Published:</b> 05-05-2024</p>
-        <p><b>Last Edited:</b> 28-06-2024</p>
+        <p><b>Last Edited:</b> 04-08-2024</p>
 
         <p>I wrote this library while trying to brute force/reverse engineer a short message from its CRC hash (I later learned that this is a futile effort). However, I found that there is still a need for a fast CRC library in Python, so I decided to make this library anyway.</p>
 
-        <h2>Considering and comparing existing CRC libraries for Python</h2>
+        <h3>Considering and comparing existing CRC libraries for Python</h3>
 
         <p>For pure Python libraries, there is <a href="https://github.com/Nicoretti/crc">crc</a> which happens to be popular but is extremely slow. It commits several programming sins, such as using an entire class to represent a single byte. A nicer pure Python library is <a href="https://github.com/GardenTools/CrcEngine">CrcEngine</a>. However, CRC code would ideally not be written in Python, as even optimized Python code would still be pretty slow.</p>
 
         <p>The standard library has the <a href="https://docs.python.org/3/library/binascii.html">binascii</a> and <a href="https://docs.python.org/3/library/zlib.html">zlib</a> modules, which both have an implementation of CRC32. On 64-bit systems, they use the slice-by-8 algorithm which is very fast, so if all that you need is the basic CRC32, then the Python standard library should be enough. The binascii module also has an implementation of CRC-CCITT.</p>
 
-        <p>For libraries that bind to libraries written in other languages, there is a modernized version of the old crcmod library named <a href="https://github.com/ntamas/crcmod-plus">crcmod-plus</a>. It uses the byte-by-byte algorithm, and it achieves good performance compared to Python-based libraries.</p>
+        <p>For libraries that bind to code written in other languages, there is a modernized version of the old crcmod library named <a href="https://github.com/ntamas/crcmod-plus">crcmod-plus</a>. It uses the byte-by-byte algorithm, and it achieves good performance compared to Python-based libraries.</p>
 
         <p>There is also <a href="https://github.com/overcat/fastcrc">fastcrc</a>, which binds to the crc-rs rust library. It offers similar performance to crcmod-plus, albeit its selection of CRCs is more limited. It seems to be still using the byte-by-byte algorithm, despite the fact that crc-rs was updated to support the slice-by-16 algorithm, so it has the potential to be faster.</p>
 
         <p>There is <a href="https://github.com/hex-in/libscrc">libscrc</a>, which I expected to have similar performance to crcmod-plus and fastcrc, however based on my testing it runs slower than both of them. There is also <a href="https://github.com/tpircher/pycrc">pycrc</a>, which despite its name, it's actually intended for generating C code and its Python implementation is very slow.</p>
 
-        <h2>Can we do better?</h2>
+        <h3>Can we do better?</h3>
 
         <p>The answer is yes. Since there is already fast, optimized CRC code floating around, It would be better to write bindings to an existing library, rather than to try to write CRC code from scratch. There are two things that I want to have in a CRC library:</p>
 
@@ -46,7 +46,7 @@
 
         <p>crcany offers generic algorithms for computing CRCs of any size up to a width of 64 bits. The fastest being the slice-by-8 algorithm (only on x64 systems), and above 64 bits it resorts to using the much slower bit-by-bit algorithm.</p>
 
-        <h2>It's time to write the bindings to the library in Python</h2>
+        <h3>It's time to write the bindings to the library in Python</h3>
 
         <p>For this I will be using Cython, which compiles to a native Python C extension. This is much easier than dealing with the (ugly) Python C API, and if optimized well, Cython is just slightly slower than native Python C extensions.</p>
 
@@ -55,7 +55,7 @@
         <p>After writing the bindings, the next challenge is to cross-compile the Cython extension. Turns out the common way to do this is to use <a
         href="https://cibuildwheel.pypa.io/en/stable/">cibuildwheel</a> in conjunction with a CI environment (Continuous Integration). In this case the CI environment I'll be using is GitHub Actions. This is my first time compiling a library for multiple systems.</p>
 
-        <h2>Optimizing the performance</h2>
+        <h3>Optimizing the performance</h3>
 
         <p>As mentioned above, the fastest algorithm that crcany offers is the slice-by-8 algorithm, but it turns out that it's relatively easy to extend it
         to use slice-by-16. In fact, the slice-by-8 algorithm almost has the same structure as slice-by-16.</p>
